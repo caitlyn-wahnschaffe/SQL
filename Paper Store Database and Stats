@@ -1,0 +1,31 @@
+CREATE TABLE paper_supplies (id INTEGER PRIMARY KEY, name TEXT, cost INTEGER, amount INTEGER);
+
+INSERT INTO paper_supplies VALUES (1,"black pen", 1.50, 100);
+INSERT INTO paper_supplies VALUES (2, "green pen", 1.50, 100);
+INSERT INTO paper_supplies VALUES (3, "blue pen", 1.50, 120);
+INSERT INTO paper_supplies VALUES (4, "pencil", 1.0, 400);
+INSERT INTO paper_supplies VALUES (5, "black notebook", 3.50, 120);
+INSERT INTO paper_supplies VALUES (6, "purple notebook", 3.50, 125);
+INSERT INTO paper_supplies VALUES (7, "rainbow notebook", 3.50, 127);
+INSERT INTO paper_supplies VALUES (8, "pink notebook", 3.50, 100);
+INSERT INTO paper_supplies VALUES (9, "green notebook", 3.50, 101);
+INSERT INTO paper_supplies VALUES (10, "blue notebook", 3.50, 98);
+INSERT INTO paper_supplies VALUES (11, "pencil sharpener", 2.50, 55);
+INSERT INTO paper_supplies VALUES (12, "ruler", 3.00, 75),(13, "eraser",0.75, 311);
+INSERT INTO paper_supplies VALUES (14, "grey notebook", 3.50, 121);
+INSERT INTO paper_supplies VALUES (15, "brown notebook", 3.50, 200);
+
+-- display items from the store that have less than 100 in stock 
+SELECT name 
+FROM paper_supplies 
+WHERE amount < 100;
+
+--display the items and their cost starting with the highest priced item
+SELECT name, cost 
+FROM paper_supplies 
+ORDER BY cost DESC;
+
+-- how many items in the store do we have that cost more than $2
+SELECT SUM(amount) 
+FROM paper_supplies
+WHERE cost > 2;
