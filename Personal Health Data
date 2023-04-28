@@ -1,0 +1,35 @@
+
+
+CREATE TABLE health (id INTEGER PRIMARY KEY, exercise_type TEXT, time INTEGER, rating INTEGER, date TEXT);
+
+INSERT INTO health (id, exercise_type, time, rating, date) VALUES (1, "running", 35, 4, "2023-04-01");
+INSERT INTO health (id, exercise_type, time, rating, date) VALUES (2, "weights", 45, 5, "2023-04-02");
+INSERT INTO health (id, exercise_type, time, rating, date) VALUES (3, "swimming", 45, 5, "2023-04-05");
+INSERT INTO health (id, exercise_type, time, rating, date) VALUES (4, "running", 30, 4.5, "2023-04-06");
+INSERT INTO health (id, exercise_type, time, rating, date) VALUES (5, "weights", 50, 4, "2023-04-07");
+INSERT INTO health (id, exercise_type, time, rating, date) VALUES (6, "weights", 30,4.5, "2023-04-09");
+INSERT INTO health (id, exercise_type, time, rating, date) VALUES (7, "running", 35, 3, "2023-04-10");
+INSERT INTO health (id, exercise_type, time, rating, date) VALUES (8, "running", 40, 5, "2023-04-12");
+INSERT INTO health (id, exercise_type, time, rating, date) VALUES (9, "weights", 55, 2, "2023-04-14");
+INSERT INTO health (id, exercise_type, time, rating, date) VALUES (10, "swimming", 25, 5, "2023-04-15");
+
+-- Edit my rating when I went swimming on 2023-04-15 to 3
+UPDATE health SET rating = 3
+WHERE exercise_type = "swimming" AND date = "2023-04-15";
+
+-- Edit the two days that I did weights to say arms
+UPDATE health SET exercise_type = "arms"
+WHERE date = "2023-04-07" OR date = "2023-04-14";
+
+-- How many times did I exercise doing each exercise type for less than 40 minutes with rating of 4 or more?
+SELECT exercise_type, COUNT(*) FROM health
+WHERE time < 40 AND rating >= 4
+GROUP BY exercise_type;
+
+-- What exercise types have a rating of 5?
+SELECT exercise_type FROM health
+WHERE rating = 5;
+
+-- How much time have I spent doing each type of exercise?
+SELECT SUM(time), exercise_type FROM health
+GROUP BY exercise_type;
