@@ -53,3 +53,13 @@ END AS Starrating
 FROM Temptable
 GROUP BY artist_name
 HAVING AVG(popularity) >= 90;
+
+-- this query also works for the abvove question "For every artist with..."
+WITH Temptable AS (
+SELECT s.artist_name, 
+AVG(s.popularity) AS avgp
+FROM Spotifydata s
+GROUP BY s.artist_name)
+SELECT artist_name, avgp, 'Top Star' AS tag
+FROM Temptable
+WHERE avgp >= 90;
