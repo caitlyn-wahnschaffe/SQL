@@ -40,3 +40,16 @@ SELECT track_name, artist_name, popularity
 FROM BIT_DB.spotifydata
 ORDER BY popularity desc;
 LIMIT 10;
+
+-- For every artist with an average popularity of 90 or above, show their name, their average popularity, and label them as a “Top Star”.
+WITH Temptable AS (
+SELECT artist_name, popularity
+FROM Spotifydata)
+SELECT artist_name, AVG(popularity),
+CASE 
+WHEN AVG(popularity) >= 90 THEN 'Top Star'
+ELSE 'Not Top Star'
+END AS Starrating
+FROM Temptable
+GROUP BY artist_name
+HAVING AVG(popularity) >= 90;
