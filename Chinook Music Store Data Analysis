@@ -47,7 +47,7 @@ FROM chinook.invoices
 WHERE Invoicedate LIKE "2009%";
 
 -- What are the total sales for 2009?
-SELECT SUM(Total)
+SELECT ROUND(SUM(Total),2)
 FROM chinook.invoices
 WHERE Invoicedate LIKE "2009%";
 
