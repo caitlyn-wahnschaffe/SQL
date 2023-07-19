@@ -1,0 +1,41 @@
+-- Requests in category "Rodents- Rats" average over 64 days to resolve. Why?
+-- Why is the average so high? Check the distribution of completion times.
+SELECT date_trunc('day',(date_completed-date_created)) AS completion_time,
+       COUNT(*) AS count
+  FROM evanston311
+ WHERE category = 'Rodents- Rats'
+ GROUP BY completion_time
+ ORDER BY count DESC;
+
+-- See how excluding outliers influences average completion times
+SELECT category, 
+       AVG(date_completed-date_created) AS avg_completion_time
+  FROM evanston311
+ WHERE date_completed-date_created < 
+         (SELECT percentile_disc(.95) WITHIN GROUP (ORDER BY date_completed-date_created)
+            FROM evanston311)
+ GROUP BY category
+ ORDER BY avg_completion_time DESC;
+
+-- Do requests made in busy months take longer to complete? Check the correlation between the average completion time and requests per month.
+SELECT corr(avg_completion, count)
+  FROM (SELECT date_trunc('month', date_created) AS month,            
+               avg(EXTRACT(epoch FROM date_completed - date_created)) AS avg_completion,
+               count(*) AS count
+          FROM evanston31
+         WHERE category='Rodents- Rats' 
+         GROUP BY month) 
+         AS monthly_avgs;
+
+-- What is the longest time between Evanston 311 requests being submitted?
+WITH request_gaps AS (
+        SELECT date_created,
+               -- lead or lag
+               LAG(date_created) OVER (ORDER BY date_created) AS previous,
+               -- compute gap as date_created minus lead or lag
+               date_created - LAG(date_created) OVER (ORDER BY date_created) AS gap
+          FROM evanston311)
+SELECT *
+  FROM request_gaps
+ WHERE gap = (SELECT MAX(gap)
+                FROM request_gaps);
