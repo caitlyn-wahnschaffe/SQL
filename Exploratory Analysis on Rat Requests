@@ -30,9 +30,7 @@ SELECT corr(avg_completion, count)
 -- What is the longest time between Evanston 311 requests being submitted?
 WITH request_gaps AS (
         SELECT date_created,
-               -- lead or lag
                LAG(date_created) OVER (ORDER BY date_created) AS previous,
-               -- compute gap as date_created minus lead or lag
                date_created - LAG(date_created) OVER (ORDER BY date_created) AS gap
           FROM evanston311)
 SELECT *
