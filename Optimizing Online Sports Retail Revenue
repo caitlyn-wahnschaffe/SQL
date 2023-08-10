@@ -1,0 +1,107 @@
+-- Count the total number of products, along with the number of non-missing values in description, listing_price, and last_visited.
+SELECT count(*) as total_rows, 
+COUNT(i.description) AS count_description,
+COUNT(f.listing_price) as count_listing_price,
+COUNT(t.last_visited) as count_last_visited
+FROM info as i
+LEFT JOIN finance as f
+ON i.product_id=f.product_id
+LEFT JOIN traffic as t
+ON t.product_id = f.product_id
+-- Find out how listing_price varies between Adidas and Nike products.
+SELECT brand, 
+listing_price::int,
+COUNT(f.product_id)
+FROM brands AS b
+LEFT JOIN finance AS f
+ON b.product_id=f.product_id
+WHERE listing_price > 0
+GROUP BY brand, listing_price
+ORDER BY listing_price DESC;
+-- Create labels for products grouped by price range and brand.
+SELECT brand, 
+COUNT(f.product_id),
+SUM(revenue) AS total_revenue,
+CASE 
+WHEN listing_price < 42 THEN 'Budget'
+WHEN listing_price >=42 AND listing_price <74 THEN 'Average'
+WHEN listing_price >=74 AND listing_price <129 THEN 'Expensive'
+WHEN listing_price >=129 THEN 'Elite'
+ELSE 'Other'
+END AS price_category
+FROM brands AS b
+LEFT JOIN finance AS f
+ON b.product_id=f.product_id
+WHERE brand IS NOT NULL
+GROUP BY brand, price_category
+ORDER BY total_revenue DESC;
+-- Calculate the average discount offered by brand.
+SELECT brand,
+AVG(discount)*100 AS average_discount
+FROM brands AS b
+LEFT JOIN finance AS f
+ON b.product_id=f.product_id
+WHERE brand IS NOT NULL
+GROUP BY brand;
+-- Calculate the correlation between reviews and revenue.
+SELECT CORR(revenue,reviews) AS review_revenue_corr
+FROM finance AS f
+LEFT JOIN reviews AS r
+ON f.product_id=r.product_id;
+-- Split description into bins in increments of one hundred characters, and calculate average rating by for each bin.
+SELECT TRUNC(LENGTH(description), -2) AS description_length,
+ROUND(AVG(rating::numeric),2) AS average_rating
+FROM info AS i
+LEFT JOIN reviews AS r
+ON i.product_id=r.product_id
+WHERE description IS NOT NULL
+GROUP BY description_length
+ORDER BY description_length;
+-- Count the number of reviews per brand per month.
+SELECT brand,
+EXTRACT(MONTH FROM last_visited) AS month,
+COUNT(r.product_id) AS num_reviews
+FROM brands AS b
+LEFT JOIN traffic as t
+ON b.product_id=t.product_id
+LEFT JOIN reviews AS r
+ON r.product_id=b.product_id
+WHERE brand IS NOT NULL AND last_visited IS NOT NULL
+GROUP BY brand, month
+ORDER BY brand, month;
+-- Create the footwear CTE, then calculate the number of products and average revenue from these items.
+WITH footwear AS (
+SELECT description,
+revenue,
+listing_price
+FROM info AS i
+LEFT JOIN finance AS f
+ON i.product_id=f.product_id
+WHERE description IS NOT NULL AND
+description ILIKE '%shoe%' OR
+description ILIKE '%trainer%' OR
+description ILIKE '%foot%')
+
+SELECT COUNT(*) AS num_footwear_products,
+percentile_disc(0.5) WITHIN GROUP (ORDER BY revenue) AS median_footwear_revenue
+FROM footwear;
+-- Copy the code used to create footwear then use a filter to return only products that are not in the CTE.
+WITH footwear AS (
+SELECT description,
+revenue,
+listing_price
+FROM info AS i
+LEFT JOIN finance AS f
+ON i.product_id=f.product_id
+WHERE description IS NOT NULL AND
+description ILIKE '%shoe%' OR
+description ILIKE '%trainer%' OR
+description ILIKE '%foot%')
+
+SELECT COUNT(i.product_id) AS num_clothing_products,
+percentile_disc(0.5) WITHIN GROUP (ORDER BY revenue) AS median_clothing_revenue
+FROM info AS i
+LEFT JOIN finance AS f
+ON i.product_id=f.product_id
+WHERE description NOT IN (SELECT description
+                        FROM footwear);
